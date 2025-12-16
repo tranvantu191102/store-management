@@ -1,0 +1,80 @@
+<div class="register-container">
+  <div class="register-card">
+    <h1>Đăng Ký</h1>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="Nhập email của bạn"
+          [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)" />
+        <small class="error-text" *ngIf="email?.hasError('required') && email?.touched">
+          Email là bắt buộc
+        </small>
+        <small class="error-text" *ngIf="email?.hasError('email') && email?.touched">
+          Vui lòng nhập email hợp lệ
+        </small>
+      </div>
+
+      <!-- Display Name Field -->
+      <div class="form-group">
+        <label for="displayName">Tên Hiển Thị</label>
+        <input id="displayName" type="text" formControlName="displayName" placeholder="Nhập tên của bạn"
+          [class.is-invalid]="displayName?.invalid && (displayName?.dirty || displayName?.touched)" />
+        <small class="error-text" *ngIf="displayName?.hasError('required') && displayName?.touched">
+          Tên hiển thị là bắt buộc
+        </small>
+        <small class="error-text" *ngIf="displayName?.hasError('minlength') && displayName?.touched">
+          Tên hiển thị phải có ít nhất 2 ký tự
+        </small>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password">Mật Khẩu</label>
+        <input id="password" type="password" formControlName="password" placeholder="Nhập mật khẩu của bạn"
+          [class.is-invalid]="password?.invalid && (password?.dirty || password?.touched)" />
+        <small class="error-text" *ngIf="password?.hasError('required') && password?.touched">
+          Mật khẩu là bắt buộc
+        </small>
+        <small class="error-text" *ngIf="password?.hasError('minlength') && password?.touched">
+          Mật khẩu phải có ít nhất 6 ký tự
+        </small>
+      </div>
+
+      <!-- Confirm Password Field -->
+      <div class="form-group">
+        <label for="confirmPassword">Xác Nhận Mật Khẩu</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword"
+          placeholder="Xác nhận mật khẩu của bạn"
+          [class.is-invalid]="confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)" />
+        <small class="error-text" *ngIf="confirmPassword?.hasError('required') && confirmPassword?.touched">
+          Vui lòng xác nhận mật khẩu của bạn
+        </small>
+        <small class="error-text" *ngIf="registerForm.hasError('passwordMismatch') && confirmPassword?.touched">
+          Mật khẩu không khớp
+        </small>
+      </div>
+
+      <!-- Error Message -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Success Message -->
+      <div class="alert alert-success" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid || isLoading">
+        {{ isLoading ? 'Đang đăng ký...' : 'Đăng Ký' }}
+      </button>
+    </form>
+
+    <!-- Login Link -->
+    <div class="auth-link">
+      <p>Đã có tài khoản? <a routerLink="/login">Đăng nhập tại đây</a></p>
+    </div>
+  </div>
+</div>

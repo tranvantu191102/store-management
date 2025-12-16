@@ -1,0 +1,154 @@
+<div class="dashboard-container">
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-content">
+      <div class="logo-section">
+        <div class="logo-icon">🏪</div>
+        <h1>Quản Lý Cửa Hàng</h1>
+      </div>
+      <div class="user-menu">
+        <span class="user-name" *ngIf="user$ | async as user">
+          {{ user.email }}
+        </span>
+        <button class="logout-btn" (click)="logout()">
+          <span>🚪</span> Đăng Xuất
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Theft Alert Modal -->
+  <div class="theft-alert-overlay" *ngIf="intruderAlert$ | async" [@fadeInOut]>
+    <div class="theft-alert-modal">
+      <div class="alert-header">
+        <span class="alert-icon">🚨</span>
+        <h2>{{ alertMessage }}</h2>
+      </div>
+      <div class="alert-body">
+        <p>Phát hiện hoạt động lạ tại kho!</p>
+        <p class="alert-time" *ngIf="alertTime">
+          Thời gian: {{ alertTime | date: 'HH:mm:ss' }}
+        </p>
+      </div>
+      <div class="alert-actions">
+        <button class="btn-dismiss" (click)="dismissAlert()">Đóng</button>
+        <button class="btn-contact" (click)="dismissAlert()">Tôi đã biết</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <!-- Status Overview Section -->
+    <div class="status-section" *ngIf="status$ | async as status">
+      <!-- <div class="status-badge" [ngClass]="'status-' + status">
+        <div class="status-dot"></div>
+        <span class="status-label">{{ getStatusText(status) }}</span>
+      </div> -->
+      <div class="last-updated" *ngIf="lastUpdated$ | async as lastUpdated">
+        Cập nhật lần cuối: {{ lastUpdated | date: 'short' }}
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading$ | async">
+      <div class="spinner"></div>
+      <p>Đang tải dữ liệu cảm biến...</p>
+    </div>
+
+    <!-- Sensor Data Grid -->
+    <div class="sensor-grid" *ngIf="!(isLoading$ | async)">
+      <!-- Temperature Card -->
+      <div class="sensor-card temperature-card">
+        <div class="card-header">
+          <h2>Nhiệt Độ</h2>
+          <span class="icon">🌡️</span>
+        </div>
+
+        <div class="card-content" *ngIf="temperature$ | async as temp">
+          <!-- Large Temperature Display -->
+          <div class="temperature-display">
+            <span class="value">{{ temp | number: '1.1-1' }}</span>
+            <span class="unit">°C</span>
+          </div>
+
+          <!-- Temperature Gauge -->
+          <div class="gauge-container">
+            <div class="gauge-background">
+              <div class="gauge-fill" [style.width.%]="getTemperatureGauge(temp)"
+                [style.background]="getTemperatureFillColor(temp)">
+              </div>
+            </div>
+            <div class="gauge-labels">
+              <span>0°C</span>
+              <span>25°C</span>
+              <span>50°C</span>
+            </div>
+          </div>
+
+          <!-- Status Indicator -->
+          <div class="status-indicator" [ngClass]="getTemperatureStatus(temp)">
+            <span class="status-dot"></span>
+            {{ getTemperatureStatusText(temp) }}
+          </div>
+
+          <!-- Range Info -->
+          <div class="range-info">
+            <p class="optimal-range">
+              <strong>Tối Ưu:</strong> 16°C - 26°C
+            </p>
+            <p class="warning-range">
+              <strong>Cảnh Báo:</strong> 12°C - 30°C
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Humidity Card -->
+      <div class="sensor-card humidity-card">
+        <div class="card-header">
+          <h2>Độ Ẩm</h2>
+          <span class="icon">💧</span>
+        </div>
+
+        <div class="card-content" *ngIf="humidity$ | async as humidity">
+          <!-- Large Humidity Display -->
+          <div class="humidity-display">
+            <span class="value">{{ humidity | number: '1.1-1' }}</span>
+            <span class="unit">%</span>
+          </div>
+
+          <!-- Humidity Gauge -->
+          <div class="gauge-container">
+            <div class="gauge-background">
+              <div class="gauge-fill" [style.width.%]="getHumidityGauge(humidity)"
+                [style.background]="getHumidityFillColor(humidity)">
+              </div>
+            </div>
+            <div class="gauge-labels">
+              <span>0%</span>
+              <span>50%</span>
+              <span>100%</span>
+            </div>
+          </div>
+
+          <!-- Status Indicator -->
+          <div class="status-indicator" [ngClass]="getHumidityStatus(humidity)">
+            <span class="status-dot"></span>
+            {{ getHumidityStatusText(humidity) }}
+          </div>
+
+          <!-- Range Info -->
+          <div class="range-info">
+            <p class="optimal-range">
+              <strong>Tối Ưu:</strong> 30% - 60%
+            </p>
+            <p class="warning-range">
+              <strong>Cảnh Báo:</strong> 20% - 70%
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
