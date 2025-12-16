@@ -23,6 +23,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   user$ = this.authService.user$;
   temperature$ = this.iotService.temperature$;
   humidity$ = this.iotService.humidity$;
+  motion$ = this.iotService.motion$;
   status$ = this.iotService.status$;
   lastUpdated$ = this.iotService.lastUpdated$;
   isLoading$ = this.iotService.isLoading$;
@@ -35,7 +36,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.iotService.listenToSensorData();
-    this.simulateTheftAlerts();
+    this.checkMotionAlert();
   }
 
   ngOnDestroy(): void {
@@ -51,15 +52,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Simulate theft alerts from Firebase (mock data)
-  private simulateTheftAlerts(): void {
-    // Simulate alerts every 30 seconds for demo
-    setInterval(() => {
-      // 20% chance of triggering an alert
-      if (Math.random() < 0.2) {
+  // Check motion signal from Firebase and trigger alert
+  private checkMotionAlert(): void {
+    this.motion$.subscribe((motion) => {
+      console.log('Motion value:', motion);
+      if (motion) {
+        console.log('Motion detected! Triggering theft alert...');
         this.triggerTheftAlert();
       }
-    }, 10000);
+    });
   }
 
   triggerTheftAlert(): void {

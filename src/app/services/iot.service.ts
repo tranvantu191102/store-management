@@ -22,12 +22,14 @@ export interface SensorData {
 export class IoTService {
   private temperatureSubject = new BehaviorSubject<number>(0);
   private humiditySubject = new BehaviorSubject<number>(0);
+  private motionSubject = new BehaviorSubject<boolean>(false);
   private statusSubject = new BehaviorSubject<'optimal' | 'warning' | 'critical'>('optimal');
   private lastUpdatedSubject = new BehaviorSubject<Date>(new Date());
   private isLoadingSubject = new BehaviorSubject<boolean>(true);
 
   temperature$ = this.temperatureSubject.asObservable();
   humidity$ = this.humiditySubject.asObservable();
+  motion$ = this.motionSubject.asObservable();
   status$ = this.statusSubject.asObservable();
   lastUpdated$ = this.lastUpdatedSubject.asObservable();
   isLoading$ = this.isLoadingSubject.asObservable();
@@ -40,10 +42,13 @@ export class IoTService {
   /**
    * Listen to real-time sensor data from Firebase
    * Expects data at path: /DHT11 with Humidity and Temperature
+   * Expects motion at path: /motion (same level as DHT11)
    */
   listenToSensorData(): void {
     const sensorRef = ref(this.database, 'DHT11');
+    const motionRef = ref(this.database, 'motion');
 
+    // Listen to sensor data (temperature and humidity)
     onValue(
       sensorRef,
       (snapshot) => {
@@ -69,6 +74,20 @@ export class IoTService {
         this.isLoadingSubject.next(false);
       }
     );
+
+    // Listen to motion data separately
+    onValue(
+      motionRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const motion = snapshot.val();
+          this.motionSubject.next(motion);
+        }
+      },
+      (error) => {
+        console.error('Error reading motion data:', error);
+      }
+    );
   }
 
   /**
@@ -76,7 +95,9 @@ export class IoTService {
    */
   stopListening(): void {
     const sensorRef = ref(this.database, 'DHT11');
+    const motionRef = ref(this.database, 'motion');
     off(sensorRef);
+    off(motionRef);
   }
 
   /**
@@ -91,6 +112,13 @@ export class IoTService {
    */
   getHumidity(): number {
     return this.humiditySubject.value;
+  }
+
+  /**
+   * Get current motion status
+   */
+  getMotion(): boolean {
+    return this.motionSubject.value;
   }
 
   /**

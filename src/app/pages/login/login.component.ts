@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -42,7 +43,7 @@ export class LoginComponent implements OnInit {
     return this.loginForm.get('password');
   }
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     if (this.loginForm.invalid) {
       return;
     }
@@ -51,17 +52,21 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    try {
-      const { email, password } = this.loginForm.value;
-      await this.authService.login(email, password);
-      this.successMessage = 'Login successful!';
-      setTimeout(() => {
-        this.router.navigate(['/dashboard']);
-      }, 1000);
-    } catch (error) {
-      this.errorMessage = error instanceof Error ? error.message : 'Login failed';
-    } finally {
-      this.isLoading = false;
-    }
+    const { email, password } = this.loginForm.value;
+    this.authService.login(email, password)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.successMessage = 'Login successful!';
+          this.router.navigate(['/dashboard']);
+        },
+        error: (error) => {
+          this.errorMessage = error instanceof Error ? error.message : 'Login failed';
+        }
+      });
   }
 }

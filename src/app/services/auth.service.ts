@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, user } from '@angular/fire/auth';
-import { Firestore, collection, doc, setDoc } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, from, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 export interface UserData {
   uid: string;
@@ -16,44 +16,34 @@ export interface UserData {
 export class AuthService {
 
   private auth: Auth = inject(Auth)
-  private firestore: Firestore = inject(Firestore)
 
   user$ = user(this.auth);
 
   /**
    * Register a new user with email and password
+   * Returns an Observable of UserData
    */
-  async register(email: string, password: string, displayName?: string): Promise<UserData> {
-    try {
-      console.log('Registering user with email:', email, 'and displayName:', displayName, '...');
-      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
-      const uid = userCredential.user.uid;
-
-      // Store user data in Firestore
-      const userRef = doc(this.firestore, 'users', uid);
-      const userData: UserData = {
-        uid,
-        email,
+  register(email: string, password: string, displayName?: string): Observable<UserData> {
+    return from(createUserWithEmailAndPassword(this.auth, email, password)).pipe(
+      map((userCredential) => ({
+        uid: userCredential.user.uid,
+        email: userCredential.user.email || email,
         displayName: displayName || email.split('@')[0],
         createdAt: new Date()
-      };
-
-      await setDoc(userRef, userData);
-      return userData;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+      })),
+      catchError((error) => throwError(() => this.handleError(error)))
+    );
   }
 
   /**
    * Login with email and password
+   * Returns an Observable that completes when login is successful
    */
-  async login(email: string, password: string): Promise<void> {
-    try {
-      await signInWithEmailAndPassword(this.auth, email, password);
-    } catch (error) {
-      throw this.handleError(error);
-    }
+  login(email: string, password: string): Observable<void> {
+    return from(signInWithEmailAndPassword(this.auth, email, password)).pipe(
+      map(() => undefined),
+      catchError((error) => throwError(() => this.handleError(error)))
+    );
   }
 
   /**

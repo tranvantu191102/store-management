@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -58,7 +59,7 @@ export class RegisterComponent implements OnInit {
     return this.registerForm.get('confirmPassword');
   }
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     if (this.registerForm.invalid) {
       return;
     }
@@ -67,17 +68,21 @@ export class RegisterComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    try {
-      const { email, password, displayName } = this.registerForm.value;
-      await this.authService.register(email, password, displayName);
-      this.successMessage = 'Registration successful! Redirecting to dashboard...';
-      setTimeout(() => {
-        this.router.navigate(['/dashboard']);
-      }, 1500);
-    } catch (error) {
-      this.errorMessage = error instanceof Error ? error.message : 'Registration failed';
-    } finally {
-      this.isLoading = false;
-    }
+    const { email, password, displayName } = this.registerForm.value;
+    this.authService.register(email, password, displayName)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.successMessage = 'Registration successful! Redirecting to dashboard...';
+          this.router.navigate(['/dashboard']);
+        },
+        error: (error) => {
+          this.errorMessage = error instanceof Error ? error.message : 'Registration failed';
+        }
+      });
   }
 }
