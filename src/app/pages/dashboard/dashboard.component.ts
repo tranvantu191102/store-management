@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { IoTService } from '../../services/iot.service';
 import { SensorHistoryService } from '../../services/sensor-history.service';
+import { WarehouseService } from '../../services/warehouse.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +19,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private authService: AuthService = inject(AuthService);
   private iotService: IoTService = inject(IoTService);
   private sensorHistory: SensorHistoryService = inject(SensorHistoryService);
+  private warehouseService: WarehouseService = inject(WarehouseService);
   private router: Router = inject(Router);
 
   user$ = this.authService.user$;
@@ -29,6 +31,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isLoading$ = this.iotService.isLoading$;
   sensorReadings$ = this.sensorHistory.readings$;
 
+  // Warehouse inventory
+  currentInventory$ = this.warehouseService.currentInventory$;
+  inventoryHistory$ = this.warehouseService.history$;
+  warehouseLoading$ = this.warehouseService.isLoading$;
+
   // Theft Alert variables
   intruderAlert$ = new BehaviorSubject<boolean>(false);
   alertMessage = 'Phát Hiện Cảnh Báo Trộm!';
@@ -36,11 +43,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.iotService.listenToSensorData();
+    this.warehouseService.listenToWarehouseData();
     this.checkMotionAlert();
   }
 
   ngOnDestroy(): void {
     this.iotService.stopListening();
+    this.warehouseService.stopListening();
   }
 
   async logout(): Promise<void> {
@@ -139,6 +148,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
       default:
         return 'Không Xác Định';
     }
+  }
+
+  // Warehouse methods
+  getTransactionTypeLabel(type: 'NHAP' | 'XUAT'): string {
+    return this.warehouseService.getTransactionTypeLabel(type);
+  }
+
+  getTransactionTypeColor(type: 'NHAP' | 'XUAT'): string {
+    return this.warehouseService.getTransactionTypeColor(type);
+  }
+
+  formatDate(dateString: string): string {
+    return this.warehouseService.formatDate(dateString);
   }
 }
 

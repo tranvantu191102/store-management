@@ -150,5 +150,65 @@
         </div>
       </div>
     </div>
+
+    <!-- Inventory Section -->
+    <div class="inventory-section">
+      <div class="inventory-header">
+        <h2>📦 Quản Lý Kho</h2>
+      </div>
+
+      <div class="inventory-container">
+        <!-- Current Inventory Card -->
+        <div class="inventory-card current-inventory">
+          <div class="card-header">
+            <h3>Tồn Kho Hiện Tại</h3>
+            <span class="icon">📊</span>
+          </div>
+          <div class="card-content" *ngIf="currentInventory$ | async as inventory">
+            <div class="inventory-value">
+              <span class="value">{{ inventory }}</span>
+              <span class="unit">Sản phẩm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory History -->
+        <div class="inventory-card history-card">
+          <div class="card-header">
+            <h3>Lịch Sử </h3>
+            <span class="icon">📜</span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state" *ngIf="warehouseLoading$ | async">
+              <div class="spinner"></div>
+              <p>Đang tải lịch sử...</p>
+            </div>
+
+            <div class="history-list" *ngIf="!(warehouseLoading$ | async)">
+              <div class="history-item" *ngFor="let transaction of inventoryHistory$ | async">
+                <div class="transaction-header">
+                  <div class="transaction-info">
+                    <span class="transaction-type" [style.color]="getTransactionTypeColor(transaction.type)">
+                      {{ transaction.type === 'NHAP' ? '➕' : '➖' }} {{ getTransactionTypeLabel(transaction.type) }}
+                    </span>
+                    <span class="transaction-date">{{ formatDate(transaction.date) }}</span>
+                  </div>
+                  <div class="transaction-amount" [style.color]="transaction.type === 'NHAP' ? '#4CAF50' : '#FF6F00'">
+                    {{ transaction.type === 'NHAP' ? '+' : '-' }}{{ transaction.amount }}
+                  </div>
+                </div>
+                <div class="transaction-details">
+                  <span class="ton-sau">Tồn sau: <strong>{{ transaction.ton_sau }}</strong></span>
+                </div>
+              </div>
+
+              <div class="empty-state" *ngIf="(inventoryHistory$ | async)?.length === 0">
+                <p>Chưa có giao dịch nào</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
