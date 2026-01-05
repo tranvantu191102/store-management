@@ -41,11 +41,11 @@ export class IoTService {
 
   /**
    * Listen to real-time sensor data from Firebase
-   * Expects data at path: /DHT11 with Humidity and Temperature
-   * Expects motion at path: /motion (same level as DHT11)
+   * Expects data at path: /warehouse with temperature and humidity
+   * Expects motion at path: /motion (same level as warehouse)
    */
   listenToSensorData(): void {
-    const sensorRef = ref(this.database, 'DHT11');
+    const sensorRef = ref(this.database, 'warehouse');
     const motionRef = ref(this.database, 'motion');
 
     // Listen to sensor data (temperature and humidity)
@@ -54,8 +54,8 @@ export class IoTService {
       (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
-          const temperature = parseFloat(data.Temperature) || 0;
-          const humidity = parseFloat(data.Humidity) || 0;
+          const temperature = parseFloat(data.temperature) || 0;
+          const humidity = parseFloat(data.humidity) || 0;
 
           this.temperatureSubject.next(temperature);
           this.humiditySubject.next(humidity);
@@ -94,7 +94,7 @@ export class IoTService {
    * Stop listening to sensor data
    */
   stopListening(): void {
-    const sensorRef = ref(this.database, 'DHT11');
+    const sensorRef = ref(this.database, 'warehouse');
     const motionRef = ref(this.database, 'motion');
     off(sensorRef);
     off(motionRef);

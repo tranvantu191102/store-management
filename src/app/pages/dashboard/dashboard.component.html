@@ -175,7 +175,7 @@
         <!-- Inventory History -->
         <div class="inventory-card history-card">
           <div class="card-header">
-            <h3>Lịch Sử </h3>
+            <h3>Lịch Sử Giao Dịch</h3>
             <span class="icon">📜</span>
           </div>
           <div class="card-content">
@@ -204,6 +204,66 @@
 
               <div class="empty-state" *ngIf="(inventoryHistory$ | async)?.length === 0">
                 <p>Chưa có giao dịch nào</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alarm History -->
+        <div class="inventory-card history-card alarm-history">
+          <div class="card-header">
+            <h3>Lịch Sử Cảnh Báo</h3>
+            <span class="icon">🚨</span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state" *ngIf="warehouseLoading$ | async">
+              <div class="spinner"></div>
+              <p>Đang tải lịch sử...</p>
+            </div>
+
+            <div class="history-list" *ngIf="!(warehouseLoading$ | async)">
+              <div class="event-item alarm-event" *ngFor="let alarm of alarmHistory$ | async">
+                <div class="event-icon" [style.color]="getEventColor(alarm.event)">🚨</div>
+                <div class="event-details">
+                  <div class="event-label" [style.color]="getEventColor(alarm.event)">
+                    {{ getEventLabel(alarm.event) }}
+                  </div>
+                  <div class="event-timestamp">{{ formatTimestamp(alarm.timestamp) }}</div>
+                </div>
+              </div>
+
+              <div class="empty-state" *ngIf="(alarmHistory$ | async)?.length === 0">
+                <p>Chưa có cảnh báo nào</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Door History -->
+        <div class="inventory-card history-card door-history">
+          <div class="card-header">
+            <h3>Lịch Sử Mở Cửa</h3>
+            <span class="icon">🚪</span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state" *ngIf="warehouseLoading$ | async">
+              <div class="spinner"></div>
+              <p>Đang tải lịch sử...</p>
+            </div>
+
+            <div class="history-list" *ngIf="!(warehouseLoading$ | async)">
+              <div class="event-item door-event" *ngFor="let door of doorHistory$ | async">
+                <div class="event-icon" [style.color]="getEventColor(door.event)">🚪</div>
+                <div class="event-details">
+                  <div class="event-label" [style.color]="getEventColor(door.event)">
+                    {{ getEventLabel(door.event) }}
+                  </div>
+                  <div class="event-timestamp">{{ formatTimestamp(door.timestamp) }}</div>
+                </div>
+              </div>
+
+              <div class="empty-state" *ngIf="(doorHistory$ | async)?.length === 0">
+                <p>Chưa có lịch sử mở cửa</p>
               </div>
             </div>
           </div>

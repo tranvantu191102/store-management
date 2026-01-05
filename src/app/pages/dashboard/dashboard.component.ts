@@ -34,6 +34,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Warehouse inventory
   currentInventory$ = this.warehouseService.currentInventory$;
   inventoryHistory$ = this.warehouseService.history$;
+  alarmHistory$ = this.warehouseService.alarmHistory$;
+  doorHistory$ = this.warehouseService.doorHistory$;
   warehouseLoading$ = this.warehouseService.isLoading$;
 
   // Theft Alert variables
@@ -161,6 +163,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   formatDate(dateString: string): string {
     return this.warehouseService.formatDate(dateString);
+  }
+
+  // Event history methods
+  getEventLabel(event: string): string {
+    return this.warehouseService.getEventLabel(event);
+  }
+
+  getEventColor(event: string): string {
+    return this.warehouseService.getEventColor(event);
+  }
+
+  formatTimestamp(timestamp: string): string {
+    return this.warehouseService.formatTimestamp(timestamp);
   }
 }
 
